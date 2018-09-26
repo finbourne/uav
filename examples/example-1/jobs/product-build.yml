@@ -1,0 +1,13 @@
+- get: "{{product_name}}-src"
+  passed:
+    - "{{product_name}}.unit-test"
+- task: "{{product_name}}.build"
+  template: "tasks/product-build.yml"
+  arguments:
+    product_name: "{{product_name}}"
+    src_path: "{{product_name}}-src"
+    bin_path: "{{product_name}}-bin"
+    build_configuration: "{{build_configuration}}"
+- put: "{{product_name}}-release"
+  params:
+    file: "{{product_name}}.tar.gz"

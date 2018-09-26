@@ -1,0 +1,45 @@
+groups:
+  - name: all
+    jobs:
+      - product-1.build
+      - product-2.build
+      - product-1.unit-test
+      - product-2.unit-test
+
+  - name: product-1
+    jobs:
+      - product-1.build
+      - product-1.unit-test
+
+  - name: product-2
+    jobs:
+      - product-2.build
+      - product-2.unit-test
+
+jobs:
+  - name: "product-1.unit-test"
+    serial: true
+    template: "jobs/product-unit-test.yml"
+    arguments:
+      product_name: "product-1"
+  
+  - name: "product-1.build"
+    serial: true
+    template: "jobs/product-build.yml"
+    arguments:
+      product_name: "product-1"
+      build_configuration: "Release"
+
+  - name: "product-2.unit-test"
+    serial: true
+    template: "jobs/product-unit-test.yml"
+    arguments:
+      product_name: "product-2"
+
+  - name: "product-2.build"
+    serial: true
+    template: "jobs/product-build.yml"
+    arguments:
+      product_name: "product-2"
+      build_configuration: "Release"
+
