@@ -1,0 +1,19 @@
+jobs:
+- name: deploy-{{ .env }}
+  serial: true
+  plan:
+  - task: task1
+    config:
+      platform: linux
+    
+      image_resource:
+        type: docker-image
+        source:
+          repository: test/docker-container
+      run:
+        path: /bin/bash
+        args: 
+        - -cel
+        - |
+          echo Hello {{ .env }}!
+        

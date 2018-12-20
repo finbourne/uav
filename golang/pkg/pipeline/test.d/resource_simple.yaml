@@ -1,0 +1,7 @@
+resources:
+- name: test
+  type: git
+  source:
+    uri: git@{{ .param1 }}.com:concourse/concourse.git
+    branch: master
+    private_key: ((github.privatekey))

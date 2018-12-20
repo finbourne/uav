@@ -1,0 +1,28 @@
+---
+jobs:
+  - name: deploy-sonar
+    plan:
+    - aggregate:
+      - get: thing
+    
+    - task: Do Something
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: alpine
+  
+        inputs:
+          - name: thing
+  
+        run:
+          path: /bin/bash
+          args: 
+            - -cel
+            - |
+                cat >.extra-values.yaml <<EOF
+                postgresql:
+                  postgresPassword: ${password}
+                EOF
+  

@@ -1,0 +1,2 @@
+merge:
+- template: test.d/job_simple.yaml
