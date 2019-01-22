@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"strings"
 	"text/template"
 
 	"github.com/Masterminds/sprig"
@@ -134,7 +135,7 @@ func mapInterfaceInterfaceToMapStringInterface(data map[interface{}]interface{})
 func getYamlMap(filename string) string {
 	yamlFile, err := ioutil.ReadFile(filename)
 	if err != nil {
-		return ""
+		log.Fatalf("Template unable to be read.\n%v", err)
 	}
 	return string(yamlFile)
 }
@@ -204,6 +205,7 @@ func funcMap(t *template.Template) template.FuncMap {
 			}
 			return buf.String(), nil
 		},
+		"skipLines": skipLines,
 	}
 
 	for k, v := range extra {
@@ -211,6 +213,10 @@ func funcMap(t *template.Template) template.FuncMap {
 	}
 
 	return f
+}
+
+func skipLines(numberOfLines int, str string) string {
+	return strings.Join(strings.Split(str, "\n")[1:], "\n")
 }
 
 func fromYaml(str string) map[string]interface{} {

@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"gitlab.finbourne.com/tools/uav/pkg/pipeline"
+	"github.com/finbourne/uav/golang/pkg/pipeline"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -16,7 +16,6 @@ var (
 	templates    = merge.Flag("template", "An additional golang text/template to parse and make available to pipelines.").Short('t').ExistingFiles()
 
 	outputFile = merge.Flag("output", "The file to save the output to.").Short('o').String()
-	test       = merge.Flag("test", "The file to save the output to.").Short('l').String()
 )
 
 func main() {
