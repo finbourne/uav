@@ -3,7 +3,7 @@
 version=${version:-0.0.5}
 
 cat >version.go <<- EOF
-package uav
+package main
 
 var (
 	version      = "${version}"
