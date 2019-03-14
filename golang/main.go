@@ -1,3 +1,4 @@
+//go:generate ./version.sh
 package main
 
 import (
