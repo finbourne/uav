@@ -4,20 +4,26 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 
 	"github.com/finbourne/uav/golang/pkg/pipeline"
+	"github.com/sirupsen/logrus"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
+func init() {
+	logrus.SetLevel(logrus.WarnLevel)
+}
+
 var (
-	app          = kingpin.New("uav", "A commandline app for composing Concourse-ci pipelines.")
+	app          = kingpin.New("uav", "A commandline app for composing Concourse-CI pipelines.")
 	merge        = app.Command("merge", "Take the pipeline and merge all the templates into it.")
 	pipelineFile = merge.Flag("pipeline", "Name of file containing the pipeline to process.").Required().Short('p').File()
-	templateDirs = merge.Flag("directory", "A directory containing additional text/template to parse and make available to pipelines.").Short('d').ExistingDirs()
-	templates    = merge.Arg("template", "An additional golang text/template to parse and make available to pipelines.").ExistingFiles()
+	templateDirs = merge.Flag("directory", "A directory containing additional Go templates to parse and make available to pipelines.").Short('d').ExistingDirs()
+	templates    = merge.Arg("template", "An additional Go template to parse and make available to pipelines.").ExistingFiles()
+	verbose      = app.Flag("verbose", "Verbose output.").Short('v').Bool()
+	jsonVerbose  = app.Flag("json", "Verbose output in JSON format - use in combination with '--verbose'.").Short('j').Bool()
 
 	outputFile = merge.Flag("output", "The file to save the output to.").Short('o').String()
 )
@@ -26,16 +32,26 @@ func main() {
 	kingpin.CommandLine.Help = "UAV - the Concourse Pipeline generator"
 	kingpin.Version(version)
 
-	switch kingpin.MustParse(app.Parse(os.Args[1:])) {
+	command := kingpin.MustParse(app.Parse(os.Args[1:]))
+
+	if *verbose {
+		logrus.SetLevel(logrus.InfoLevel)
+
+		if *jsonVerbose {
+			logrus.SetFormatter(new(logrus.JSONFormatter))
+		}
+	}
+
+	switch command {
 	case merge.FullCommand():
 		pipeline, err := ioutil.ReadFile((*pipelineFile).Name())
 		if err != nil {
-			log.Fatalf("Error reading pipeline file: %v", err)
+			logrus.Fatalf("Error reading pipeline file: %v", err)
 		}
 
 		output, err := performMerge(string(pipeline), *templates, *templateDirs)
 		if err != nil {
-			log.Fatalf("Error creating new pipeline: %v", err)
+			logrus.Fatalf("Error creating new pipeline: %v", err)
 		}
 
 		if *outputFile == "-" || *outputFile == "" {
@@ -45,7 +61,7 @@ func main() {
 		}
 
 		if err != nil {
-			log.Fatalf("Error writing output: %v", err)
+			logrus.Fatalf("Error writing output: %v", err)
 		}
 
 	default:
@@ -70,7 +86,12 @@ func performMerge(inputPipeline string, templates []string, templateDirs []strin
 		return "", fmt.Errorf("transforming pipeline file: %v", err)
 	}
 
-	return pl.Transform().String(), nil
+	pl, err = pl.Transform()
+	if err != nil {
+		return "", err
+	}
+
+	return pl.String(), nil
 }
 
 // combineTemplates returns a slice which is the superset of the templates slice and the file paths of

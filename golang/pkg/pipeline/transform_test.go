@@ -32,12 +32,19 @@ jobs:
         - |
           echo Hello World!
 `
-	var pipeline Pipeline
+	pipeline := new(Pipeline)
 
-	yaml.Unmarshal([]byte(expectedPipeline), &pipeline)
-	expected, _ := yaml.Marshal(&pipeline)
+	yaml.Unmarshal([]byte(expectedPipeline), pipeline)
+	expected, _ := yaml.Marshal(pipeline)
 	merger, _ := NewPipeline(p, args, nil)
-	result := merger.Transform().String()
+
+	var err error
+	pipeline, err = merger.Transform()
+	if err != nil {
+		t.Errorf("Error transforming %v: %v", p, err)
+	}
+
+	result := pipeline.String()
 	if result != string(expected) {
 		t.Errorf("[%v] is not equal to [%v]\n", result, string(expected))
 	}
@@ -93,12 +100,19 @@ jobs:
         - |
           echo Hello qa!
 `
-	var pipeline Pipeline
+	pipeline := new(Pipeline)
 
-	yaml.Unmarshal([]byte(expectedPipeline), &pipeline)
-	expected, _ := yaml.Marshal(&pipeline)
+	yaml.Unmarshal([]byte(expectedPipeline), pipeline)
+	expected, _ := yaml.Marshal(pipeline)
 	merger, _ := NewPipeline(p, args, nil)
-	result := merger.Transform().String()
+
+	var err error
+	pipeline, err = merger.Transform()
+	if err != nil {
+		t.Errorf("Error transforming %v: %v", p, err)
+	}
+
+	result := pipeline.String()
 	if result != string(expected) {
 		t.Errorf("[%v] is not equal to [%v]\n", result, string(expected))
 	}
@@ -146,12 +160,20 @@ jobs:
         - |
           echo Hello World!
 `
-	var pipeline Pipeline
+	pipeline := new(Pipeline)
 
-	yaml.Unmarshal([]byte(expectedPipeline), &pipeline)
-	expected, _ := yaml.Marshal(&pipeline)
+	yaml.Unmarshal([]byte(expectedPipeline), pipeline)
+	expected, _ := yaml.Marshal(pipeline)
 	merger, _ := NewPipeline(p, args, nil)
-	result := merger.Transform().String()
+
+	var err error
+	pipeline, err = merger.Transform()
+	if err != nil {
+		t.Errorf("Error transforming %v: %v", p, err)
+	}
+
+	result := pipeline.String()
+
 	if result != string(expected) {
 		t.Errorf("[%v] is not equal to [%v]\n", result, string(expected))
 	}
@@ -187,12 +209,20 @@ jobs:
           echo Hello World!
           echo ((secret))
 `
-	var pipeline Pipeline
+	pipeline := new(Pipeline)
 
-	yaml.Unmarshal([]byte(expectedPipeline), &pipeline)
-	expected, _ := yaml.Marshal(&pipeline)
+	yaml.Unmarshal([]byte(expectedPipeline), pipeline)
+	expected, _ := yaml.Marshal(pipeline)
 	merger, _ := NewPipeline(p, args, nil)
-	result := merger.Transform().String()
+
+	var err error
+	pipeline, err = merger.Transform()
+	if err != nil {
+		t.Errorf("Error transforming %v: %v", p, err)
+	}
+
+	result := pipeline.String()
+
 	if result != string(expected) {
 		t.Errorf("[%v] is not equal to [%v]\n", result, string(expected))
 	}
@@ -244,12 +274,19 @@ jobs:
         - |
           echo Hello World!
 `
-	var pipeline Pipeline
+	pipeline := new(Pipeline)
 
-	yaml.Unmarshal([]byte(expectedPipeline), &pipeline)
-	expected, _ := yaml.Marshal(&pipeline)
+	yaml.Unmarshal([]byte(expectedPipeline), pipeline)
+	expected, _ := yaml.Marshal(pipeline)
 	merger, _ := NewPipeline(p, args, nil)
-	result := merger.Transform().String()
+
+	var err error
+	pipeline, err = merger.Transform()
+	if err != nil {
+		t.Errorf("Error transforming %v: %v", p, err)
+	}
+
+	result := pipeline.String()
 	if result != string(expected) {
 		t.Errorf("[%v] is not equal to [%v]\n", result, string(expected))
 	}
@@ -295,12 +332,19 @@ jobs:
         - |
           echo Hello World!
 `
-	var pipeline Pipeline
+	pipeline := new(Pipeline)
 
-	yaml.Unmarshal([]byte(expectedPipeline), &pipeline)
-	expected, _ := yaml.Marshal(&pipeline)
+	yaml.Unmarshal([]byte(expectedPipeline), pipeline)
+	expected, _ := yaml.Marshal(pipeline)
 	merger, _ := NewPipeline(p, args, nil)
-	result := merger.Transform().String()
+
+	var err error
+	pipeline, err = merger.Transform()
+	if err != nil {
+		t.Errorf("Error transforming %v: %v", p, err)
+	}
+
+	result := pipeline.String()
 	if result != string(expected) {
 		t.Errorf("[%v] is not equal to [%v]\n", result, string(expected))
 	}
@@ -332,12 +376,19 @@ jobs:
         - |
           echo Hello World!
 `
-	var pipeline Pipeline
+	pipeline := new(Pipeline)
 
-	yaml.Unmarshal([]byte(expectedPipeline), &pipeline)
-	expected, _ := yaml.Marshal(&pipeline)
+	yaml.Unmarshal([]byte(expectedPipeline), pipeline)
+	expected, _ := yaml.Marshal(pipeline)
 	merger, _ := NewPipeline(p, args, nil)
-	result := merger.Transform().String()
+
+	var err error
+	pipeline, err = merger.Transform()
+	if err != nil {
+		t.Errorf("Error transforming %v: %v", p, err)
+	}
+
+	result := pipeline.String()
 	if result != string(expected) {
 		t.Errorf("[%v] is not equal to [%v]\n", result, string(expected))
 	}
@@ -374,12 +425,19 @@ jobs:
         path: /bin/bash
     task: Do Something
 `
-	var pipeline Pipeline
+	pipeline := new(Pipeline)
 
-	yaml.Unmarshal([]byte(expectedPipeline), &pipeline)
-	expected, _ := yaml.Marshal(&pipeline)
+	yaml.Unmarshal([]byte(expectedPipeline), pipeline)
+	expected, _ := yaml.Marshal(pipeline)
 	merger, _ := NewPipeline(p, args, nil)
-	result := merger.Transform().String()
+
+	var err error
+	pipeline, err = merger.Transform()
+	if err != nil {
+		t.Errorf("Error transforming %v: %v", p, err)
+	}
+
+	result := pipeline.String()
 	if result != string(expected) {
 		t.Errorf("[%v] is not equal to [%v]\n", result, string(expected))
 	}
@@ -422,12 +480,19 @@ jobs:
         path: /bin/bash
     task: Do Something
 `
-	var pipeline Pipeline
+	pipeline := new(Pipeline)
 
-	yaml.Unmarshal([]byte(expectedPipeline), &pipeline)
-	expected, _ := yaml.Marshal(&pipeline)
+	yaml.Unmarshal([]byte(expectedPipeline), pipeline)
+	expected, _ := yaml.Marshal(pipeline)
 	merger, _ := NewPipeline(p, args, []string{"test.d/t1.tpl"})
-	result := merger.Transform().String()
+
+	var err error
+	pipeline, err = merger.Transform()
+	if err != nil {
+		t.Errorf("Error transforming %v: %v", p, err)
+	}
+
+	result := pipeline.String()
 	if result != string(expected) {
 		t.Errorf("[%v] is not equal to [%v]\n", result, string(expected))
 	}
@@ -447,12 +512,19 @@ jobs:
   body: 
     - blah
 `
-	var pipeline Pipeline
+	pipeline := new(Pipeline)
 
-	yaml.Unmarshal([]byte(expectedPipeline), &pipeline)
-	expected, _ := yaml.Marshal(&pipeline)
+	yaml.Unmarshal([]byte(expectedPipeline), pipeline)
+	expected, _ := yaml.Marshal(pipeline)
 	merger, _ := NewPipeline(p, args, nil)
-	result := merger.Transform().String()
+
+	var err error
+	pipeline, err = merger.Transform()
+	if err != nil {
+		t.Errorf("Error transforming %v: %v", p, err)
+	}
+
+	result := pipeline.String()
 	if result != string(expected) {
 		t.Errorf("[%v] is not equal to [%v]\n", result, string(expected))
 	}
@@ -473,12 +545,19 @@ jobs:
   - get: test
     trigger: true
 `
-	var pipeline Pipeline
+	pipeline := new(Pipeline)
 
-	yaml.Unmarshal([]byte(expectedPipeline), &pipeline)
-	expected, _ := yaml.Marshal(&pipeline)
+	yaml.Unmarshal([]byte(expectedPipeline), pipeline)
+	expected, _ := yaml.Marshal(pipeline)
 	merger, _ := NewPipeline(p, args, []string{"test.d/t2.tpl"})
-	result := merger.Transform().String()
+
+	var err error
+	pipeline, err = merger.Transform()
+	if err != nil {
+		t.Errorf("Error transforming %v: %v", p, err)
+	}
+
+	result := pipeline.String()
 	if result != string(expected) {
 		t.Errorf("[%v] is not equal to [%v]\n", result, string(expected))
 	}

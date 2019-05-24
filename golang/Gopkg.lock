@@ -69,6 +69,22 @@
   version = "v0.3.6"
 
 [[projects]]
+  digest = "1:31e761d97c76151dde79e9d28964a812c46efc5baee4085b86f68f0c654450de"
+  name = "github.com/konsorten/go-windows-terminal-sequences"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "f55edac94c9bbba5d6182a4be46d86a2c9b5b50e"
+  version = "v1.0.2"
+
+[[projects]]
+  digest = "1:04457f9f6f3ffc5fea48e71d62f2ca256637dee0a04d710288e27e05c8b41976"
+  name = "github.com/sirupsen/logrus"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "839c75faf7f98a33d445d181f3018b5c3409a45e"
+  version = "v1.4.2"
+
+[[projects]]
   branch = "master"
   digest = "1:dd658e9008df9e0bea1ddb2caa3df8250e5e42bf54dcb776ed5bef0496395549"
   name = "golang.org/x/crypto"
@@ -78,6 +94,14 @@
   ]
   pruneopts = "UT"
   revision = "505ab145d0a99da450461ae2c1a9f6cd10d1f447"
+
+[[projects]]
+  branch = "master"
+  digest = "1:dce1d6c001ac752c61f5e255666ed388d78ff2089914f7067c7d6b6ff49e6420"
+  name = "golang.org/x/sys"
+  packages = ["unix"]
+  pruneopts = "UT"
+  revision = "0e01d883c5c5e3a1741118a9962f68d71b0a6ed4"
 
 [[projects]]
   digest = "1:c06d9e11d955af78ac3bbb26bd02e01d2f61f689e1a3bce2ef6fb683ef8a7f2d"
@@ -100,6 +124,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/Masterminds/sprig",
+    "github.com/sirupsen/logrus",
     "gopkg.in/alecthomas/kingpin.v2",
     "gopkg.in/yaml.v2",
   ]

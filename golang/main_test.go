@@ -50,7 +50,7 @@ type testCase struct {
 	files      []string
 }
 
-func (tc testCase) String() string {
+func (tc *testCase) String() string {
 	return fmt.Sprintf("Working dir: %s; Directories: %v; Files: %v", tc.workingDir, tc.dirs, tc.files)
 }
 
@@ -96,11 +96,11 @@ func TestPerformMerge(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		doTest(t, test)
+		doTest(t, &test)
 	}
 }
 
-func doTest(t *testing.T, test testCase) {
+func doTest(t *testing.T, test *testCase) {
 	err := os.Chdir(test.workingDir)
 	if err != nil {
 		t.Errorf("Unable to change directory for %v: %v", test, err)
@@ -120,26 +120,29 @@ func doTest(t *testing.T, test testCase) {
 
 	if output != expectedOutput {
 		t.Errorf("Incorrect output:\n%s\nfor %v", output, test)
+		writeIncorrectOutputFile(output, test)
+	}
+}
 
-		info, err := os.Stat("incorrect_output")
+func writeIncorrectOutputFile(output string, test *testCase) {
+	info, err := os.Stat("incorrect_output")
+	if err != nil {
+		log.Printf("Unable to stat incorrect_output directory for %v: %v", test, err)
+	}
+
+	if info != nil && !info.IsDir() {
+		log.Printf("File incorrect_output exists, must be directory for %v", test)
+	}
+
+	if info == nil {
+		err = os.Mkdir("incorrect_output", 0755)
 		if err != nil {
-			t.Fatalf("Unable to stat incorrect_output directory for %v: %v", test, err)
+			log.Printf("Unable to create incorrect_output directory for %v: %v", test, err)
 		}
+	}
 
-		if info != nil && !info.IsDir() {
-			t.Fatalf("File incorrect_output exists, must be directory for %v: %v", test, err)
-		}
-
-		if info == nil {
-			err = os.Mkdir("incorrect_output", 0755)
-			if err != nil {
-				t.Fatalf("Unable to create incorrect_output directory for %v: %v", test, err)
-			}
-		}
-
-		err = ioutil.WriteFile("incorrect_output"+string(os.PathSeparator)+"pipeline.yml", []byte(output), 0644)
-		if err != nil {
-			t.Fatalf("Unable to create incorrect_output file for %v: %v", test, err)
-		}
+	err = ioutil.WriteFile("incorrect_output"+string(os.PathSeparator)+"pipeline.yml", []byte(output), 0644)
+	if err != nil {
+		log.Printf("Unable to create incorrect_output file for %v: %v", test, err)
 	}
 }
