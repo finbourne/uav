@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/sirupsen/logrus"
+	"github.com/finbourne/uav/golang/pkg/log"
 )
 
 func merge(p1 Pipeline, p2 Pipeline) (Pipeline, error) {
@@ -106,7 +106,7 @@ func interfaceToMapStringInterface(data interface{}) map[string]interface{} {
 		case string:
 			m[key] = value
 		default:
-			logrus.Fatal("key should be string")
+			log.Fatal("key should be string")
 		}
 	}
 	return m

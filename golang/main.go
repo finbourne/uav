@@ -7,14 +7,10 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/finbourne/uav/golang/pkg/log"
 	"github.com/finbourne/uav/golang/pkg/pipeline"
-	"github.com/sirupsen/logrus"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
-
-func init() {
-	logrus.SetLevel(logrus.WarnLevel)
-}
 
 var (
 	app          = kingpin.New("uav", "A commandline app for composing Concourse-CI pipelines.")
@@ -35,10 +31,10 @@ func main() {
 	command := kingpin.MustParse(app.Parse(os.Args[1:]))
 
 	if *verbose {
-		logrus.SetLevel(logrus.InfoLevel)
+		log.SetLevel(log.LevelInfo)
 
 		if *jsonVerbose {
-			logrus.SetFormatter(new(logrus.JSONFormatter))
+			log.SetFormat(log.FormatJSON)
 		}
 	}
 
@@ -46,12 +42,12 @@ func main() {
 	case merge.FullCommand():
 		pipeline, err := ioutil.ReadFile((*pipelineFile).Name())
 		if err != nil {
-			logrus.Fatalf("Error reading pipeline file: %v", err)
+			log.Fatalf("Error reading pipeline file: %v", err)
 		}
 
 		output, err := performMerge(string(pipeline), *templates, *templateDirs)
 		if err != nil {
-			logrus.Fatalf("Error creating new pipeline: %v", err)
+			log.Fatalf("Error creating new pipeline: %v", err)
 		}
 
 		if *outputFile == "-" || *outputFile == "" {
@@ -61,7 +57,7 @@ func main() {
 		}
 
 		if err != nil {
-			logrus.Fatalf("Error writing output: %v", err)
+			log.Fatalf("Error writing output: %v", err)
 		}
 
 	default:

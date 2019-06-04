@@ -9,7 +9,7 @@ import (
 	"text/template"
 
 	"github.com/Masterminds/sprig"
-	"github.com/sirupsen/logrus"
+	"github.com/finbourne/uav/golang/pkg/log"
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -57,12 +57,12 @@ func (p *Pipeline) Transform() (*Pipeline, error) {
 		extraTemplates: p.extraTemplates,
 	}
 
-	logrus.Infof("Merging %d merge clauses...", len(p.Merge))
+	log.Infof("Merging %d merge clauses...", len(p.Merge))
 	if len(p.Merge) > 0 {
 		for _, v := range p.Merge {
 			c := mapInterfaceInterfaceToMapStringInterface(v.(map[interface{}]interface{}))
 			if mc, ok := mergeConfigFromTemplateWithParams(c); ok {
-				logrus.Infof("Merging: %v", &mc)
+				log.Infof("Merging: %v", &mc)
 				cp := mapInterfaceInterfaceToPipeline(stringToMapInterfaceInterface(transformTemplateWithParams(mc.Parameters, getYamlMap(mc.FilePath), pipeline.extraTemplates)))
 				pipelineBeforeMerge := pipeline
 				pipeline, err = merge(pipeline, cp)
@@ -86,7 +86,7 @@ func (p *Pipeline) Transform() (*Pipeline, error) {
 func (p *Pipeline) String() string {
 	text, err := yaml.Marshal(&p)
 	if err != nil {
-		logrus.Fatalf("error: %v", err)
+		log.Fatalf("error: %v", err)
 	}
 
 	return string(text)
@@ -136,7 +136,7 @@ func mapInterfaceInterfaceToMapStringInterface(data map[interface{}]interface{})
 		case string:
 			m[key] = value
 		default:
-			logrus.Fatal("key should be string")
+			log.Fatal("key should be string")
 		}
 	}
 	return m
@@ -145,7 +145,7 @@ func mapInterfaceInterfaceToMapStringInterface(data map[interface{}]interface{})
 func getYamlMap(filename string) string {
 	yamlFile, err := ioutil.ReadFile(filename)
 	if err != nil {
-		logrus.Fatalf("Template unable to be read.\n%v", err)
+		log.Fatalf("Template unable to be read.\n%v", err)
 	}
 	return string(yamlFile)
 }
@@ -156,20 +156,20 @@ func transformTemplateWithParams(params map[string]interface{}, t string, ts []s
 	if len(ts) > 0 {
 		templates, err = templates.Funcs(funcMap(templates)).ParseFiles(ts...)
 		if err != nil {
-			logrus.Fatalf("%v\n\nTemplate: %v", err, t)
+			log.Fatalf("%v\n\nTemplate: %v", err, t)
 		}
 	} else {
 		templates = templates.Funcs(funcMap(templates))
 	}
 	_, err = templates.Parse(t)
 	if err != nil {
-		logrus.Fatalf("%v\n\nTemplate: %v", err, t)
+		log.Fatalf("%v\n\nTemplate: %v", err, t)
 	}
 
 	buf := bytes.NewBufferString("")
 	err = templates.Execute(buf, params)
 	if err != nil {
-		logrus.Fatalf("%v\n\nTemplate: %v", err, t)
+		log.Fatalf("%v\n\nTemplate: %v", err, t)
 	}
 
 	return buf.String()
@@ -180,7 +180,7 @@ func stringToMapInterfaceInterface(data string) map[interface{}]interface{} {
 	var snippet map[interface{}]interface{}
 	err := yaml.Unmarshal(buf.Bytes(), &snippet)
 	if err != nil {
-		logrus.Fatalf("Unmarshal: %v\n%v", err, data)
+		log.Fatalf("Unmarshal: %v\n%v", err, data)
 	}
 	return snippet
 
@@ -200,24 +200,8 @@ func toYaml(v interface{}) string {
 }
 
 func indentSub(spaces int, v string) string {
-	chunks := strings.SplitAfterN(v, "\n", 2)
-	if len(chunks) == 0 {
-		return ""
-	}
-
-	if len(chunks) == 1 {
-		return chunks[0]
-	}
-
-	firstLine := chunks[0]
-	remainder := chunks[1]
-
-	return firstLine + indent(spaces, remainder)
-}
-
-func indent(spaces int, v string) string {
 	pad := strings.Repeat(" ", spaces)
-	return pad + strings.Replace(v, "\n", "\n"+pad, -1)
+	return strings.Replace(v, "\n", "\n"+pad, -1)
 }
 
 func funcMap(t *template.Template) template.FuncMap {
@@ -232,7 +216,9 @@ func funcMap(t *template.Template) template.FuncMap {
 		"fromJson":  fromJson,
 		"include": func(name string, data ...interface{}) (string, error) {
 			var templateData interface{}
+
 			if len(data) == 1 {
+				// Convert a 1-element []T to T
 				templateData = data[0]
 			} else if len(data) > 1 {
 				templateData = data

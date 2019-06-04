@@ -78,9 +78,7 @@ jobs:
     task: task1
   serial: true
 `
-	//var pipeline *Pipeline
 	pipeline := new(Pipeline)
-	//var pipeline := &Pipeline{}
 
 	yaml.Unmarshal([]byte(expectedPipeline), pipeline)
 	expected, _ := yaml.Marshal(pipeline)
