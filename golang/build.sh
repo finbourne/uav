@@ -15,11 +15,11 @@ go generate
 
 echo "Linter...."
 set +e
-gometalinter.v2 --debug --deadline=60s > metalinter.out
+gometalinter --debug --deadline=60s > metalinter.out
 set -e
 
 echo "Tests...."
-go test -v -json ./... -coverprofile=test.coverage.out > tests.out
+go test -v ./... -coverprofile=test.coverage.out > tests.out
 echo "send analytic results to sonar"
 
 # echo Creating Linux binary

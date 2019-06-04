@@ -2,8 +2,9 @@ package pipeline
 
 import (
 	"fmt"
-	"log"
 	"reflect"
+
+	"github.com/finbourne/uav/golang/pkg/log"
 )
 
 func merge(p1 Pipeline, p2 Pipeline) (Pipeline, error) {

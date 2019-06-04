@@ -1,0 +1,5 @@
+merge: 
+- template: jobs/test.yml
+  args:
+    env: qa
+    repo_master: github

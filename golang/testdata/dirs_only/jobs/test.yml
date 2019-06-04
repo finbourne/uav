@@ -1,0 +1,24 @@
+jobs:
+- name: deploy-{{ .env }}
+  serial: true
+  plan:
+  - get: repo
+  - task: task1
+    config:
+      platform: linux
+    
+      image_resource:
+        type: docker-image
+        source:
+          repository: test/docker-container
+      run:
+        path: /bin/bash
+        args: 
+        - -cel
+        - |
+          cd repo
+          echo Hello {{ .env }}!
+merge:
+- template: jobs/repo.yml
+  args:
+    repo_master: {{ .repo_master }}

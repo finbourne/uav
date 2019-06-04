@@ -1,0 +1,27 @@
+jobs:
+- name: deploy-qa
+  serial: true
+  plan:
+  - get: repo
+  - task: task1
+    config:
+      platform: linux
+    
+      image_resource:
+        type: docker-image
+        source:
+          repository: test/docker-container
+      run:
+        path: /bin/bash
+        args: 
+        - -cel
+        - |
+          cd repo
+          echo Hello qa!
+resources:
+- name: test
+  type: git
+  source:
+    uri: git@github.com:concourse/concourse.git
+    branch: master
+    private_key: ((github.privatekey))

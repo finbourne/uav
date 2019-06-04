@@ -5,11 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"strings"
 	"text/template"
 
 	"github.com/Masterminds/sprig"
+	"github.com/finbourne/uav/golang/pkg/log"
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -28,6 +28,10 @@ type mergeConfig struct {
 	Parameters map[string]interface{} `yaml:"args,omitempty"`
 }
 
+func (mc *mergeConfig) String() string {
+	return fmt.Sprintf("Template path: %s, parameters: %v", mc.FilePath, mc.Parameters)
+}
+
 // NewPipeline constructs a merger object for merging pipelines.
 func NewPipeline(pipeline string, args map[string]interface{}, templates []string) (*Pipeline, error) {
 	out := transformTemplateWithParams(args, pipeline, templates)
@@ -35,17 +39,15 @@ func NewPipeline(pipeline string, args map[string]interface{}, templates []strin
 	var p Pipeline
 	err := yaml.Unmarshal([]byte(out), &p)
 	if err != nil {
-		log.Printf("error unmarshalling pipeline: %v\npipeline: %v", err, out)
-
-		return nil, err
+		return nil, fmt.Errorf("unmarshalling pipeline: %v: %v", out, err)
 	}
-	p.extraTemplates = templates
 
+	p.extraTemplates = templates
 	return &p, nil
 }
 
 // Transform takes the current pipeline and begins recursive transformation to produce the finished pipeline.
-func (p *Pipeline) Transform() *Pipeline {
+func (p *Pipeline) Transform() (*Pipeline, error) {
 	var err error
 	pipeline := Pipeline{
 		Groups:         p.Groups,
@@ -55,22 +57,30 @@ func (p *Pipeline) Transform() *Pipeline {
 		extraTemplates: p.extraTemplates,
 	}
 
+	log.Infof("Merging %d merge clauses...", len(p.Merge))
 	if len(p.Merge) > 0 {
 		for _, v := range p.Merge {
 			c := mapInterfaceInterfaceToMapStringInterface(v.(map[interface{}]interface{}))
 			if mc, ok := mergeConfigFromTemplateWithParams(c); ok {
+				log.Infof("Merging: %v", &mc)
 				cp := mapInterfaceInterfaceToPipeline(stringToMapInterfaceInterface(transformTemplateWithParams(mc.Parameters, getYamlMap(mc.FilePath), pipeline.extraTemplates)))
+				pipelineBeforeMerge := pipeline
 				pipeline, err = merge(pipeline, cp)
 				if err != nil {
-					fmt.Printf("Unable to merge pipelines %v\n", err)
+					return nil, fmt.Errorf("unable to merge pipeline %v: %v", pipelineBeforeMerge, err)
 				}
 			}
 		}
 
-		return pipeline.Transform()
+		newPipeline, err := pipeline.Transform()
+		if err != nil {
+			return nil, fmt.Errorf("unable to transform pipeline %v: %v", pipeline, err)
+		}
+
+		return newPipeline, nil
 	}
 
-	return &pipeline
+	return &pipeline, nil
 }
 
 func (p *Pipeline) String() string {
@@ -189,18 +199,33 @@ func toYaml(v interface{}) string {
 	return string(data)
 }
 
+func indentSub(spaces int, v string) string {
+	pad := strings.Repeat(" ", spaces)
+	return strings.Replace(v, "\n", "\n"+pad, -1)
+}
+
 func funcMap(t *template.Template) template.FuncMap {
 	f := sprig.TxtFuncMap()
 
 	// Add some extra functionality
 	extra := template.FuncMap{
-		"toYaml":   toYaml,
-		"fromYaml": fromYaml,
-		"toJson":   toJson,
-		"fromJson": fromJson,
-		"include": func(name string, data interface{}) (string, error) {
+		"indentSub": indentSub,
+		"toYaml":    toYaml,
+		"fromYaml":  fromYaml,
+		"toJson":    toJson,
+		"fromJson":  fromJson,
+		"include": func(name string, data ...interface{}) (string, error) {
+			var templateData interface{}
+
+			if len(data) == 1 {
+				// Convert a 1-element []T to T
+				templateData = data[0]
+			} else if len(data) > 1 {
+				templateData = data
+			}
+
 			buf := bytes.NewBuffer(nil)
-			if err := t.ExecuteTemplate(buf, name, data); err != nil {
+			if err := t.ExecuteTemplate(buf, name, templateData); err != nil {
 				return "", err
 			}
 			return buf.String(), nil
@@ -216,7 +241,7 @@ func funcMap(t *template.Template) template.FuncMap {
 }
 
 func skipLines(numberOfLines int, str string) string {
-	return strings.Join(strings.Split(str, "\n")[1:], "\n")
+	return strings.Join(strings.Split(str, "\n")[numberOfLines:], "\n")
 }
 
 func fromYaml(str string) map[string]interface{} {

@@ -78,12 +78,20 @@ jobs:
     task: task1
   serial: true
 `
-	var pipeline Pipeline
+	pipeline := new(Pipeline)
 
-	yaml.Unmarshal([]byte(expectedPipeline), &pipeline)
-	expected, _ := yaml.Marshal(&pipeline)
+	yaml.Unmarshal([]byte(expectedPipeline), pipeline)
+	expected, _ := yaml.Marshal(pipeline)
 	merger, _ := NewPipeline(p, args, nil)
-	result := merger.Transform().String()
+
+	var err error
+	transformedPipeline, err := merger.Transform()
+	if err != nil {
+		t.Errorf("Error transforming %v: %v", p, err)
+	}
+
+	result := transformedPipeline.String()
+
 	fmt.Println(result)
 	if result != string(expected) {
 		t.Errorf("[%v] is not equal to [%v]\n", result, string(expected))
