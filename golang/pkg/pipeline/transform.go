@@ -24,8 +24,8 @@ type Pipeline struct {
 }
 
 type mergeConfig struct {
-	FilePath   string                 `yaml:"template"`
-	Parameters map[string]interface{} `yaml:"args,omitempty"`
+	FilePath   string      `yaml:"template"`
+	Parameters interface{} `yaml:"args,omitempty"`
 }
 
 func (mc *mergeConfig) String() string {
@@ -100,10 +100,9 @@ func mergeConfigFromTemplateWithParams(data map[string]interface{}) (mergeConfig
 	var m mergeConfig
 	m.FilePath = data["template"].(string)
 	if data["args"] != nil {
-		m.Parameters = mapInterfaceInterfaceToMapStringInterface(data["args"].(map[interface{}]interface{}))
-	} else {
-		m.Parameters = make(map[string]interface{})
+		m.Parameters = data["args"]
 	}
+
 	return m, true
 }
 
@@ -150,7 +149,7 @@ func getYamlMap(filename string) string {
 	return string(yamlFile)
 }
 
-func transformTemplateWithParams(params map[string]interface{}, t string, ts []string) string {
+func transformTemplateWithParams(params interface{}, t string, ts []string) string {
 	templates := template.New("pipeline")
 	var err error
 	if len(ts) > 0 {
