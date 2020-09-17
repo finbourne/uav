@@ -1,6 +1,0 @@
-- get: "{{product_name}}-src"
-  trigger: true
-- task: "{{product_name}}.unit-test"
-  template: "tasks/product-unit-test.yml"
-  arguments:
-    src_path: "{{product_name}}-src"
