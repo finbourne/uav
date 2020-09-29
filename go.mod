@@ -14,7 +14,7 @@ require (
 	github.com/imdario/mergo v0.3.11
 	github.com/konsorten/go-windows-terminal-sequences v1.0.3
 	github.com/mitchellh/copystructure v1.0.0 // indirect
-	github.com/sirupsen/logrus v1.6.0
+	github.com/sirupsen/logrus v1.7.0
 	github.com/stretchr/objx v0.3.0 // indirect
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a
 	golang.org/x/sys v0.0.0-20200916084744-dbad9cb7cb7a
