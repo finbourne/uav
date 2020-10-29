@@ -1,0 +1,16 @@
+name: Notifier
+
+on: [pull_request, issues]
+
+jobs:
+  deploy-production-start:
+    name: Start Notification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send OpsGenie Alert
+        uses: eonx-com/actions-opsgenie@master
+        with:
+          API_KEY: ${{ secrets.OPSGENIE }}
+          PRIORITY: 'P2'
+          ALIAS: "${GITHUB_REPOSITORY} requires attention"
+          MESSAGE: "${GITHUB_EVENT_NAME} raised against ${GITHUB_REPOSITORY}"
