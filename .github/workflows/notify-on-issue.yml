@@ -8,10 +8,10 @@ jobs:
     steps:
       - name: NotifyOpsGenie
         run: |
-              curl -X POST https://api.opsgenie.com/v2/alerts
-                  -H "Content-Type: application/json"
-                  -H "Authorization: GenieKey ${{ secrets.OPSGENIE }}"
-                  -d
+              curl -X POST https://api.opsgenie.com/v2/alerts \
+                  -H "Content-Type: application/json" \
+                  -H "Authorization: GenieKey ${{ secrets.OPSGENIE }}" \
+                  -d \
               '{
                   "message": "${GITHUB_EVENT_NAME} raised against ${GITHUB_REPOSITORY}",
                   "alias": "${GITHUB_REPOSITORY} requires attention",
