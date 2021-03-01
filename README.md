@@ -3,6 +3,7 @@
 ![release-tag](https://github.com/finbourne/uav/workflows/release-tag/badge.svg)
 ![release-build](https://github.com/finbourne/uav/workflows/release-build/badge.svg)
 ![Go-build-status](https://github.com/finbourne/uav/workflows/Go-build-status/badge.svg)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Ffinbourne%2Fuav.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Ffinbourne%2Fuav?ref=badge_shield)
 
 ## Example usage
 The following command will take the pipeline defined in `my.pipeline.yaml` and output the result to `stdout`.  If you wanted to output to a file, redirect the output or use the `-o` flag.
@@ -480,3 +481,7 @@ jobs:
 * There is currently no way of using the templating engine's `template` function.  Arguments would need to be added to pull in additional named template in order to fulfil this condition were it to become a requirement.
 * I'm sure there are quirks.  Find them, and we can fix them.
 * There are occasions that the ranging doesn't work.  Haven't figured out why.  It's deterministic, it's just my lack of understanding around something there.
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Ffinbourne%2Fuav.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Ffinbourne%2Fuav?ref=badge_large)
