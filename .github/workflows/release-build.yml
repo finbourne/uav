@@ -31,15 +31,15 @@ jobs:
       - name: Build uav-windows-amd64
         run: GOARCH=amd64 GOOS=windows go build -o ${{ github.workspace }}/artifacts/binaries/uav-windows-amd64.exe -v .
 
-      - uses: shogo82148/actions-upload-release-asset@v1.2.2
+      - uses: shogo82148/actions-upload-release-asset@v1.6.1
         with:
           upload_url: ${{ github.event.release.upload_url }}
           asset_path: ${{ github.workspace }}/artifacts/binaries/uav-darwin-amd64
-      - uses: shogo82148/actions-upload-release-asset@v1.2.2
+      - uses: shogo82148/actions-upload-release-asset@v1.6.1
         with:
           upload_url: ${{ github.event.release.upload_url }}
           asset_path: ${{ github.workspace }}/artifacts/binaries/uav-linux-amd64
-      - uses: shogo82148/actions-upload-release-asset@v1.2.2
+      - uses: shogo82148/actions-upload-release-asset@v1.6.1
         with:
           upload_url: ${{ github.event.release.upload_url }}
           asset_path: ${{ github.workspace }}/artifacts/binaries/uav-windows-amd64.exe
