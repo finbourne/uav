@@ -45,7 +45,7 @@ jobs:
           asset_path: ${{ github.workspace }}/artifacts/binaries/uav-windows-amd64.exe
 
       - name: Publish to Dockerhub
-        uses: elgohr/Publish-Docker-Github-Action@3.02
+        uses: elgohr/Publish-Docker-Github-Action@v5
         with:
           name: finbourne/uav
           username: ${{ secrets.DOCKERHUB_USERNAME }}
