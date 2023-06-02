@@ -9,7 +9,7 @@ import (
 
 	"github.com/finbourne/uav/pkg/log"
 	"github.com/finbourne/uav/pkg/pipeline"
-	kingpin "gopkg.in/alecthomas/kingpin.v2"
+	kingpin "github.com/alecthomas/kingpin"
 )
 
 var (
