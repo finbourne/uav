@@ -1,3 +1,5 @@
+![LUSID_by_Finbourne](./resources/Finbourne_Logo_Teal.svg)
+
 # UAV 
 
 ![release-tag](https://github.com/finbourne/uav/workflows/release-tag/badge.svg)
