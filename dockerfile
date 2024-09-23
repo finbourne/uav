@@ -2,7 +2,7 @@
 # STEP 1 build executable binary
 ############################
 
-FROM golang:1.15.2-alpine as builder
+FROM golang:1.20-alpine as builder
 
 # Create uavuser user and group.
 RUN addgroup -S -g 18631 uav-user && \
