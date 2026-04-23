@@ -240,6 +240,9 @@ func funcMap(t *template.Template) template.FuncMap {
 		"fromYaml":  fromYaml,
 		"toJson":    toJson,
 		"fromJson":  fromJson,
+		"exists": func(name string) bool {
+			return t.Lookup(name) != nil
+		},
 		"include": func(name string, data ...interface{}) (string, error) {
 			var templateData interface{}
 

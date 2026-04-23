@@ -562,3 +562,35 @@ jobs:
 		t.Errorf("[%v] is not equal to [%v]\n", result, string(expected))
 	}
 }
+
+func TestTransformExistsFunc(t *testing.T) {
+	p := `
+{{- define "present" -}}ignored{{- end -}}
+jobs:
+- name: test
+  a: {{ if exists "present" }}yes_value{{ else }}no_value{{ end }}
+  b: {{ if exists "missing" }}yes_value{{ else }}no_value{{ end }}
+`
+	expectedPipeline := `
+jobs:
+- name: test
+  a: yes_value
+  b: no_value
+`
+	pipeline := new(Pipeline)
+	yaml.Unmarshal([]byte(expectedPipeline), pipeline)
+	expected, _ := yaml.Marshal(pipeline)
+
+	merger, _ := NewPipeline(p, map[string]interface{}{}, nil)
+
+	var err error
+	pipeline, err = merger.Transform()
+	if err != nil {
+		t.Fatalf("Error transforming %v: %v", p, err)
+	}
+
+	result := pipeline.String()
+	if result != string(expected) {
+		t.Errorf("[%v] is not equal to [%v]\n", result, string(expected))
+	}
+}
