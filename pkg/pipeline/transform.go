@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -163,14 +162,14 @@ func mapInterfaceInterfaceToMapStringInterface(data map[interface{}]interface{})
 // to looking the basename up in index — the same lookup scheme text/template
 // uses for `{{ template }}` and `{{ include }}`.
 func getYamlMap(filename string, index map[string]string) string {
-	if data, err := ioutil.ReadFile(filename); err == nil {
+	if data, err := os.ReadFile(filename); err == nil {
 		return string(data)
 	} else if !os.IsNotExist(err) {
 		log.Fatalf("Template unable to be read: %s: %v", filename, err)
 	}
 
 	if resolved, ok := index[filepath.Base(filename)]; ok {
-		if data, err := ioutil.ReadFile(resolved); err == nil {
+		if data, err := os.ReadFile(resolved); err == nil {
 			return string(data)
 		}
 	}

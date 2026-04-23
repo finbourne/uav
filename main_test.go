@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"testing"
@@ -164,7 +163,7 @@ func writeIncorrectOutputFile(output string, test *testCase) {
 		}
 	}
 
-	err = ioutil.WriteFile("incorrect_output"+string(os.PathSeparator)+"pipeline.yml", []byte(output), 0644)
+	err = os.WriteFile("incorrect_output"+string(os.PathSeparator)+"pipeline.yml", []byte(output), 0644)
 	if err != nil {
 		log.Printf("Unable to create incorrect_output file for %v: %v", test, err)
 	}
