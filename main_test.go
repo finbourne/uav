@@ -107,7 +107,7 @@ func TestPerformMerge(t *testing.T) {
 // come from the template index built out of `-d nested_dir/jobs`, keyed by
 // basename.
 func TestMergeBasenameFallback(t *testing.T) {
-	if _, err := os.Stat("testdata"); err == nil {
+	if _, err := os.Stat("nested_dir/jobs"); err != nil {
 		if err := os.Chdir("testdata"); err != nil {
 			t.Fatalf("Unable to chdir to testdata: %v", err)
 		}
