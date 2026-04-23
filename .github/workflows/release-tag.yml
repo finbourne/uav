@@ -5,6 +5,9 @@ on:
     branches:
       - master
 
+permissions:
+  contents: write
+
 jobs:
   push_to_registry:
     name: Make Release (docker image + binaries)
