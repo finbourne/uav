@@ -4,7 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
+	"path/filepath"
 	"strings"
 	"text/template"
 
@@ -21,6 +22,7 @@ type Pipeline struct {
 	ResourceTypes  []interface{} `yaml:"resource_types,omitempty"`
 	Jobs           []interface{} `yaml:"jobs,omitempty"`
 	extraTemplates []string
+	templateIndex  map[string]string
 }
 
 type mergeConfig struct {
@@ -43,7 +45,20 @@ func NewPipeline(pipeline string, args map[string]interface{}, templates []strin
 	}
 
 	p.extraTemplates = templates
+	p.templateIndex = buildTemplateIndex(templates)
 	return &p, nil
+}
+
+// buildTemplateIndex keys each template file by its basename, matching the
+// naming scheme text/template's ParseFiles uses for associated templates. This
+// lets `merge:` lookups fall back to the same set that `{{ template }}` and
+// `{{ include }}` resolve against.
+func buildTemplateIndex(templates []string) map[string]string {
+	index := make(map[string]string, len(templates))
+	for _, f := range templates {
+		index[filepath.Base(f)] = f
+	}
+	return index
 }
 
 // Transform takes the current pipeline and begins recursive transformation to produce the finished pipeline.
@@ -55,6 +70,7 @@ func (p *Pipeline) Transform() (*Pipeline, error) {
 		ResourceTypes:  p.ResourceTypes,
 		Jobs:           p.Jobs,
 		extraTemplates: p.extraTemplates,
+		templateIndex:  p.templateIndex,
 	}
 
 	log.Infof("Merging %d merge clauses...", len(p.Merge))
@@ -63,7 +79,7 @@ func (p *Pipeline) Transform() (*Pipeline, error) {
 			c := mapInterfaceInterfaceToMapStringInterface(v.(map[interface{}]interface{}))
 			if mc, ok := mergeConfigFromTemplateWithParams(c); ok {
 				log.Infof("Merging: %v", &mc)
-				cp := mapInterfaceInterfaceToPipeline(stringToMapInterfaceInterface(transformTemplateWithParams(mc.Parameters, getYamlMap(mc.FilePath), pipeline.extraTemplates)))
+				cp := mapInterfaceInterfaceToPipeline(stringToMapInterfaceInterface(transformTemplateWithParams(mc.Parameters, getYamlMap(mc.FilePath, pipeline.templateIndex), pipeline.extraTemplates)))
 				pipelineBeforeMerge := pipeline
 				pipeline, err = merge(pipeline, cp)
 				if err != nil {
@@ -141,12 +157,25 @@ func mapInterfaceInterfaceToMapStringInterface(data map[interface{}]interface{})
 	return m
 }
 
-func getYamlMap(filename string) string {
-	yamlFile, err := ioutil.ReadFile(filename)
-	if err != nil {
-		log.Fatalf("Template unable to be read.\n%v", err)
+// getYamlMap resolves a `merge:` template reference. It first reads the path
+// literally (preserving the existing CWD-relative behaviour), then falls back
+// to looking the basename up in index — the same lookup scheme text/template
+// uses for `{{ template }}` and `{{ include }}`.
+func getYamlMap(filename string, index map[string]string) string {
+	if data, err := os.ReadFile(filename); err == nil {
+		return string(data)
+	} else if !os.IsNotExist(err) {
+		log.Fatalf("Template unable to be read: %s: %v", filename, err)
 	}
-	return string(yamlFile)
+
+	if resolved, ok := index[filepath.Base(filename)]; ok {
+		if data, err := os.ReadFile(resolved); err == nil {
+			return string(data)
+		}
+	}
+
+	log.Fatalf("Template unable to be read: %s", filename)
+	return ""
 }
 
 func transformTemplateWithParams(params interface{}, t string, ts []string) string {
@@ -213,22 +242,8 @@ func funcMap(t *template.Template) template.FuncMap {
 		"fromYaml":  fromYaml,
 		"toJson":    toJson,
 		"fromJson":  fromJson,
-		"include": func(name string, data ...interface{}) (string, error) {
-			var templateData interface{}
-
-			if len(data) == 1 {
-				// Convert a 1-element []T to T
-				templateData = data[0]
-			} else if len(data) > 1 {
-				templateData = data
-			}
-
-			buf := bytes.NewBuffer(nil)
-			if err := t.ExecuteTemplate(buf, name, templateData); err != nil {
-				return "", err
-			}
-			return buf.String(), nil
-		},
+		"exists":    exists(t),
+		"include":   include(t),
 		"skipLines": skipLines,
 	}
 
@@ -237,6 +252,34 @@ func funcMap(t *template.Template) template.FuncMap {
 	}
 
 	return f
+}
+
+// exists and include are factories: they close over the current template set
+// so the returned function can look up associated templates by name at
+// render time.
+func exists(t *template.Template) func(string) bool {
+	return func(name string) bool {
+		return t.Lookup(name) != nil
+	}
+}
+
+func include(t *template.Template) func(string, ...interface{}) (string, error) {
+	return func(name string, data ...interface{}) (string, error) {
+		var templateData interface{}
+
+		if len(data) == 1 {
+			// Convert a 1-element []T to T
+			templateData = data[0]
+		} else if len(data) > 1 {
+			templateData = data
+		}
+
+		buf := bytes.NewBuffer(nil)
+		if err := t.ExecuteTemplate(buf, name, templateData); err != nil {
+			return "", err
+		}
+		return buf.String(), nil
+	}
 }
 
 func skipLines(numberOfLines int, str string) string {

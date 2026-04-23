@@ -3,7 +3,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -41,7 +40,7 @@ func main() {
 
 	switch command {
 	case merge.FullCommand():
-		pipeline, err := ioutil.ReadFile((*pipelineFile).Name())
+		pipeline, err := os.ReadFile((*pipelineFile).Name())
 		if err != nil {
 			log.Fatalf("Error reading pipeline file: %v", err)
 		}
@@ -54,7 +53,7 @@ func main() {
 		if *outputFile == "-" || *outputFile == "" {
 			_, err = os.Stdout.WriteString(output)
 		} else {
-			err = ioutil.WriteFile(*outputFile, []byte(output), 0644)
+			err = os.WriteFile(*outputFile, []byte(output), 0644)
 		}
 
 		if err != nil {
