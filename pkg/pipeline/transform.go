@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 	"text/template"
@@ -164,6 +165,8 @@ func mapInterfaceInterfaceToMapStringInterface(data map[interface{}]interface{})
 func getYamlMap(filename string, index map[string]string) string {
 	if data, err := ioutil.ReadFile(filename); err == nil {
 		return string(data)
+	} else if !os.IsNotExist(err) {
+		log.Fatalf("Template unable to be read: %s: %v", filename, err)
 	}
 
 	if resolved, ok := index[filepath.Base(filename)]; ok {
