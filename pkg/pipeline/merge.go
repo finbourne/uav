@@ -15,7 +15,10 @@ func merge(p1 Pipeline, p2 Pipeline) (Pipeline, error) {
 	out.Merge = appendArrayInterfaceNoCheck(p1.Merge, p2.Merge)
 	out.ResourceTypes, resourceTypesOK = mergeArrayInterfaceCheckSame(p1.ResourceTypes, p2.ResourceTypes)
 	out.Resources, resourcesOK = mergeArrayInterfaceCheckSame(p1.Resources, p2.Resources)
-	out.extraTemplates = append(p1.extraTemplates, p2.extraTemplates...)
+	// p2 is always a sub-pipeline parsed from a merged YAML file (built via
+	// mapInterfaceInterfaceToPipeline), so it never carries the CLI-supplied
+	// template loading context. Only p1 does — propagate it as-is.
+	out.extraTemplates = p1.extraTemplates
 	out.templateIndex = p1.templateIndex
 
 	if !resourceTypesOK && !resourcesOK {
