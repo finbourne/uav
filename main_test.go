@@ -100,6 +100,29 @@ func TestPerformMerge(t *testing.T) {
 	}
 }
 
+// TestMergeBasenameFallback exercises the `-d`-relative fallback in
+// getYamlMap. uav is run from testdata/ (not chdir-ed into nested_dir/), so
+// the pipeline's `- template: jobs/test.yml` and the nested
+// `- template: jobs/resources/repo.yml` cannot resolve from disk — both must
+// come from the template index built out of `-d nested_dir/jobs`, keyed by
+// basename.
+func TestMergeBasenameFallback(t *testing.T) {
+	if _, err := os.Stat("testdata"); err == nil {
+		if err := os.Chdir("testdata"); err != nil {
+			t.Fatalf("Unable to chdir to testdata: %v", err)
+		}
+	}
+
+	output, err := performMerge(input, nil, []string{"nested_dir/jobs"})
+	if err != nil {
+		t.Fatalf("performMerge error: %v", err)
+	}
+
+	if output != expectedOutput {
+		t.Errorf("Incorrect output:\n%s", output)
+	}
+}
+
 func doTest(t *testing.T, test *testCase) {
 	err := os.Chdir(test.workingDir)
 	if err != nil {
