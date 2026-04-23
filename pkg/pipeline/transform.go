@@ -240,25 +240,8 @@ func funcMap(t *template.Template) template.FuncMap {
 		"fromYaml":  fromYaml,
 		"toJson":    toJson,
 		"fromJson":  fromJson,
-		"exists": func(name string) bool {
-			return t.Lookup(name) != nil
-		},
-		"include": func(name string, data ...interface{}) (string, error) {
-			var templateData interface{}
-
-			if len(data) == 1 {
-				// Convert a 1-element []T to T
-				templateData = data[0]
-			} else if len(data) > 1 {
-				templateData = data
-			}
-
-			buf := bytes.NewBuffer(nil)
-			if err := t.ExecuteTemplate(buf, name, templateData); err != nil {
-				return "", err
-			}
-			return buf.String(), nil
-		},
+		"exists":    exists(t),
+		"include":   include(t),
 		"skipLines": skipLines,
 	}
 
@@ -267,6 +250,34 @@ func funcMap(t *template.Template) template.FuncMap {
 	}
 
 	return f
+}
+
+// exists and include are factories: they close over the current template set
+// so the returned function can look up associated templates by name at
+// render time.
+func exists(t *template.Template) func(string) bool {
+	return func(name string) bool {
+		return t.Lookup(name) != nil
+	}
+}
+
+func include(t *template.Template) func(string, ...interface{}) (string, error) {
+	return func(name string, data ...interface{}) (string, error) {
+		var templateData interface{}
+
+		if len(data) == 1 {
+			// Convert a 1-element []T to T
+			templateData = data[0]
+		} else if len(data) > 1 {
+			templateData = data
+		}
+
+		buf := bytes.NewBuffer(nil)
+		if err := t.ExecuteTemplate(buf, name, templateData); err != nil {
+			return "", err
+		}
+		return buf.String(), nil
+	}
 }
 
 func skipLines(numberOfLines int, str string) string {
